@@ -105,8 +105,16 @@ message(STATUS "Building GTSAM - shared: ${BUILD_SHARED_LIBS}")
 add_library(gtsam ${gtsam_srcs})
 
 # Boost:
-target_link_libraries(gtsam PUBLIC ${GTSAM_BOOST_LIBRARIES})
-target_include_directories(gtsam PUBLIC ${Boost_INCLUDE_DIR})
+message("linking boost: ${GTSAM_BOOST_LIBRARIES}")
+target_link_libraries(gtsam PUBLIC Boost::serialization
+                                   Boost::system
+                                   Boost::filesystem
+                                   Boost::thread
+                                   Boost::date_time
+                                   Boost::regex
+                                   Boost::headers
+                                   Boost::timer)
++# target_include_directories(gtsam PUBLIC ${Boost_INCLUDE_DIR})
 # Other deps:
 target_link_libraries(gtsam PUBLIC ${GTSAM_ADDITIONAL_LIBRARIES})
 
@@ -117,14 +125,12 @@ set_target_properties(gtsam PROPERTIES
     OUTPUT_NAME         gtsam
     CLEAN_DIRECT_OUTPUT 1
     VERSION             ${gtsam_version}
-    SOVERSION           ${gtsam_soversion})
+    SOVERSION           ${gtsam_soversion}
+    CLEAN_DIRECT_OUTPUT 1)
 
 # Append Eigen include path, set in top-level CMakeLists.txt to either
 # system-eigen, or GTSAM eigen path
-target_include_directories(gtsam PUBLIC
-  $<BUILD_INTERFACE:${GTSAM_EIGEN_INCLUDE_FOR_BUILD}>
-  $<INSTALL_INTERFACE:${GTSAM_EIGEN_INCLUDE_FOR_INSTALL}>
-)
+target_link_libraries(gtsam PUBLIC Eigen3::Eigen)
 # MKL include dir:
 if (GTSAM_USE_EIGEN_MKL)
   target_include_directories(gtsam PUBLIC ${MKL_INCLUDE_DIR})
@@ -140,13 +146,13 @@ endif()
 target_include_directories(gtsam BEFORE PUBLIC
   # SuiteSparse_config
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/SuiteSparse_config>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/gtsam/3rdparty/SuiteSparse_config>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gtsam/3rdparty/SuiteSparse_config>
   # CCOLAMD
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/CCOLAMD/Include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/gtsam/3rdparty/CCOLAMD>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gtsam/3rdparty/CCOLAMD>
   # main gtsam includes:
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/>
   # config.h
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
   # unit tests:
@@ -157,16 +163,21 @@ if(GTSAM_SUPPORT_NESTED_DISSECTION)
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/gtsam/3rdparty/metis/include>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/gtsam/3rdparty/metis/libmetis>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/gtsam/3rdparty/metis/GKlib>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/gtsam/3rdparty/metis/>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gtsam/3rdparty/metis/>
   )
 endif()
 
-
+set_target_properties(gtsam PROPERTIES
+    PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    PDB_NAME gtsam
+    COMPILE_PDB_NAME gtsam
+)
 
 if(WIN32) # Add 'lib' prefix to static library to avoid filename collision with shared library
 	if (NOT BUILD_SHARED_LIBS)
 		set_target_properties(gtsam PROPERTIES
-			PREFIX "lib"
+            PREFIX ""
 			COMPILE_DEFINITIONS GTSAM_IMPORT_STATIC)
 	else()
 		set_target_properties(gtsam PROPERTIES
@@ -188,6 +199,10 @@ install(
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin)
+
+if(MSVC)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/gtsam.pdb DESTINATION $<IF:$<BOOL:${BUILD_SHARED_LIBS}>,${CMAKE_INSTALL_BINDIR},${CMAKE_INSTALL_LIBDIR}> CONFIGURATIONS Debug)
+endif(MSVC)
 
 list(APPEND GTSAM_EXPORTED_TARGETS gtsam)
 set(GTSAM_EXPORTED_TARGETS "${GTSAM_EXPORTED_TARGETS}" PARENT_SCOPE)

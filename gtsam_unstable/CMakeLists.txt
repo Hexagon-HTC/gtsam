@@ -81,9 +81,17 @@ set_target_properties(gtsam_unstable PROPERTIES
   OUTPUT_NAME         gtsam_unstable
   CLEAN_DIRECT_OUTPUT 1
   VERSION             ${gtsam_unstable_version}
-  SOVERSION           ${gtsam_unstable_soversion})
+  SOVERSION           ${gtsam_unstable_soversion}
+  CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(gtsam_unstable PUBLIC gtsam)
 # No need to link against Boost here, it's inherited from gtsam PUBLIC interface
+
+set_target_properties(gtsam_unstable PROPERTIES
+    PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    PDB_NAME gtsam_unstable
+    COMPILE_PDB_NAME gtsam_unstable
+)
 
 if(WIN32) # Add 'lib' prefix to static library to avoid filename collision with shared library
 	if (NOT BUILD_SHARED_LIBS)
@@ -94,7 +102,8 @@ if(WIN32) # Add 'lib' prefix to static library to avoid filename collision with 
 		set_target_properties(gtsam_unstable PROPERTIES
 			PREFIX ""
 			DEFINE_SYMBOL GTSAM_UNSTABLE_EXPORTS
-			RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
+			RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+            DEFINE_SYMBOL GTSAM_UNSTABLE_EXPORTS)
 	endif()
 endif()
 
@@ -106,6 +115,10 @@ install(
 	RUNTIME DESTINATION bin)
 list(APPEND GTSAM_EXPORTED_TARGETS gtsam_unstable)
 set(GTSAM_EXPORTED_TARGETS "${GTSAM_EXPORTED_TARGETS}" PARENT_SCOPE)
+
+if(MSVC)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/gtsam_unstable.pdb DESTINATION $<IF:$<BOOL:${BUILD_SHARED_LIBS}>,${CMAKE_INSTALL_BINDIR},${CMAKE_INSTALL_LIBDIR}> CONFIGURATIONS Debug)
+endif(MSVC)
 
 # Wrap version for gtsam_unstable
 if (GTSAM_INSTALL_MATLAB_TOOLBOX)

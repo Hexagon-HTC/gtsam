@@ -85,6 +85,30 @@ public:
     return isam_.calculateEstimate<VALUE>(key);
   }
 
+  /**
+   * Remove factors and keys from ISAM2
+   * @param removeFactorIndices Indices of factors to remove from system
+   * @param extraReelimKeys is an optional set of nonlinear keys that iSAM2 will
+   * re-eliminate, regardless of the size of the linear delta. This allows the
+   * provided keys to be reordered.
+   */
+  ISAM2Result remove(
+      const FactorIndices& removeFactorIndices = FactorIndices(),
+      const boost::optional<FastList<Key> >& extraReelimKeys = boost::none)
+  {
+      isamResult_ = isam_.update(NonlinearFactorGraph(), Values(), removeFactorIndices, boost::none, boost::none, extraReelimKeys);
+
+      if(extraReelimKeys)
+      {
+          KeyVector keysToRemove;
+          for(auto key : *extraReelimKeys)
+              keysToRemove.push_back(key);
+          eraseKeyTimestampMap(keysToRemove);
+      }
+
+      return isamResult_;
+  }
+
   /** return the current set of iSAM2 parameters */
   const ISAM2Params& params() const {
     return isam_.params();

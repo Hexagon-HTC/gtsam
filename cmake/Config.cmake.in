@@ -21,8 +21,9 @@ else()
 find_dependency(Boost @BOOST_FIND_MINIMUM_VERSION@ COMPONENTS @BOOST_FIND_MINIMUM_COMPONENTS@)
 endif()
 
-# Load exports
-include(${OUR_CMAKE_DIR}/@PACKAGE_NAME@-exports.cmake)
+string(TOLOWER "@PACKAGE_NAME@" PACKAGE_NAME_LOWER)
+# Load Targets
+include(${OUR_CMAKE_DIR}/${PACKAGE_NAME_LOWER}Targets.cmake)
 
 # Load project-specific flags, if present
 if(EXISTS "${OUR_CMAKE_DIR}/@EXTRA_FILE@")

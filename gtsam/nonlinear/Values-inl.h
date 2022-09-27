@@ -348,7 +348,8 @@ namespace gtsam {
        throw ValuesKeyDoesNotExist("at", j);
 
     // Check the type and throw exception if incorrect
-    return internal::handle<ValueType>()(j,item->second);
+    const auto& item_sec = item->second;
+    return internal::handle<ValueType>()(j, item_sec);
   }
 
   /* ************************************************************************* */

@@ -3,11 +3,7 @@
 
 # Set the install directory depending on the platform so it will be found by
 # find_package(GTSAMCMakeTools)
-if(WIN32 AND NOT CYGWIN)
-	set(SCRIPT_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/CMake")
-else()
-	set(SCRIPT_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake")
-endif()
+set(SCRIPT_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake")
 
 # Install scripts
 install(FILES

@@ -167,6 +167,9 @@ namespace gtsam {
       return K_;
     }
 
+    /** return the the transformation from body to sensor frame */
+    inline boost::optional<POSE> body_P_sensor() const { return body_P_sensor_; }
+
     /** return verbosity */
     inline bool verboseCheirality() const { return verboseCheirality_; }
 

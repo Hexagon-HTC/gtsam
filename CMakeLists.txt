@@ -1,6 +1,7 @@
 project(GTSAM CXX C)
 cmake_minimum_required(VERSION 3.0)
 
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 # new feature to Cmake Version > 2.8.12
 # Mac ONLY. Define Relative Path on Mac OS
 if(NOT DEFINED CMAKE_MACOSX_RPATH)
@@ -25,7 +26,6 @@ include(GtsamMakeConfigFile)
 
 # Record the root dir for gtsam - needed during external builds, e.g., ROS
 set(GTSAM_SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-message(STATUS "GTSAM_SOURCE_ROOT_DIR: [${GTSAM_SOURCE_ROOT_DIR}]")
 
 # Load build type flags and default to Debug mode
 include(GtsamBuildTypes)
@@ -138,7 +138,7 @@ set(CPACK_GENERATOR        "TGZ" CACHE STRING "CPack Default Binary Generator")
 
 if(MSVC)
 	# By default, boost only builds static libraries on windows
-	set(Boost_USE_STATIC_LIBS ON)  # only find static libs
+	# set(Boost_USE_STATIC_LIBS ON)  # only find static libs
 	# If we ever reset above on windows and, ...
 	# If we use Boost shared libs, disable auto linking.
 	# Some libraries, at least Boost Program Options, rely on this to export DLL symbols.
@@ -163,7 +163,7 @@ endif()
 set(BOOST_FIND_MINIMUM_VERSION 1.43)
 set(BOOST_FIND_MINIMUM_COMPONENTS serialization system filesystem thread program_options date_time timer chrono regex)
 
-find_package(Boost ${BOOST_FIND_MINIMUM_VERSION} COMPONENTS ${BOOST_FIND_MINIMUM_COMPONENTS})
+find_package(Boost ${BOOST_FIND_MINIMUM_VERSION} COMPONENTS ${BOOST_FIND_MINIMUM_COMPONENTS} CONFIG)
 
 # Required components
 if(NOT Boost_SERIALIZATION_LIBRARY OR NOT Boost_SYSTEM_LIBRARY OR NOT Boost_FILESYSTEM_LIBRARY OR
@@ -192,7 +192,6 @@ set(GTSAM_BOOST_LIBRARIES
   debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
   debug ${Boost_REGEX_LIBRARY_DEBUG}
 )
-message(STATUS "GTSAM_BOOST_LIBRARIES: ${GTSAM_BOOST_LIBRARIES}")
 if (GTSAM_DISABLE_NEW_TIMERS)
     message("WARNING:  GTSAM timing instrumentation manually disabled")
     list_append_cache(GTSAM_COMPILE_DEFINITIONS_PUBLIC DGTSAM_DISABLE_NEW_TIMERS)
@@ -212,7 +211,6 @@ endif()
 
 
 if(NOT (${Boost_VERSION} LESS 105600))
-	message("Ignoring Boost restriction on optional lvalue assignment from rvalues")
 	list_append_cache(GTSAM_COMPILE_DEFINITIONS_PUBLIC BOOST_OPTIONAL_ALLOW_BINDING_TO_RVALUES BOOST_OPTIONAL_CONFIG_ALLOW_BINDING_TO_RVALUES)
 endif()
 
@@ -297,7 +295,7 @@ option(GTSAM_WITH_EIGEN_UNSUPPORTED "Install Eigen's unsupported modules" OFF)
 
 # Switch for using system Eigen or GTSAM-bundled Eigen
 if(GTSAM_USE_SYSTEM_EIGEN)
-	find_package(Eigen3 REQUIRED)
+	find_package(Eigen3 REQUIRED CONFIG)
 
 	# Use generic Eigen include paths e.g. <Eigen/Core>
 	set(GTSAM_EIGEN_INCLUDE_FOR_INSTALL "${EIGEN3_INCLUDE_DIR}")
@@ -348,8 +346,6 @@ if (EXISTS ${EIGEN_VER_H})
 	string(REGEX MATCH "[0-9]+" GTSAM_EIGEN_VERSION_MINOR "${GTSAM_EIGEN_VERSION_MINOR}")
 
 	set(GTSAM_EIGEN_VERSION "${GTSAM_EIGEN_VERSION_WORLD}.${GTSAM_EIGEN_VERSION_MAJOR}.${GTSAM_EIGEN_VERSION_MINOR}")
-
-	message(STATUS "Found Eigen version: ${GTSAM_EIGEN_VERSION}")
 else()
 	message(WARNING "Cannot determine Eigen version, missing file: `${EIGEN_VER_H}`")
 endif ()
@@ -478,8 +474,8 @@ GtsamMakeConfigFile(GTSAM "${CMAKE_CURRENT_SOURCE_DIR}/gtsam_extra.cmake.in")
 export(TARGETS ${GTSAM_EXPORTED_TARGETS} FILE GTSAM-exports.cmake)
 
 
-# Check for doxygen availability - optional dependency
-find_package(Doxygen)
+string(TOLOWER ${CMAKE_PROJECT_NAME} PROJECT_NAME_LOWER)
+install(EXPORT GTSAM-exports DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME_LOWER} FILE gtsamTargets.cmake)
 
 # Doxygen documentation - enabling options in subfolder
 if (DOXYGEN_FOUND)
