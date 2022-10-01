@@ -43,7 +43,7 @@ function(GtsamMakeConfigFile PACKAGE_NAME)
 	# Install config, version and exports files (for find scripts)
 	install(
 		FILES
-		"${PROJECT_BINARY_DIR}/${PACKAGE_NAME_LOWER}-config.cmake"
+			"${PROJECT_BINARY_DIR}/${PACKAGE_NAME_LOWER}-config.cmake"
 			"${PROJECT_BINARY_DIR}/${PACKAGE_NAME}ConfigVersion.cmake"
 		DESTINATION
 			"${CMAKE_INSTALL_PREFIX}/${DEF_INSTALL_CMAKE_DIR}"

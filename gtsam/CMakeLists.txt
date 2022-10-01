@@ -123,9 +123,6 @@ gtsam_apply_build_flags(gtsam)
 
 set_target_properties(gtsam PROPERTIES
     OUTPUT_NAME         gtsam
-    CLEAN_DIRECT_OUTPUT 1
-    VERSION             ${gtsam_version}
-    SOVERSION           ${gtsam_soversion}
     CLEAN_DIRECT_OUTPUT 1)
 
 # Append Eigen include path, set in top-level CMakeLists.txt to either
@@ -183,7 +180,7 @@ if(WIN32) # Add 'lib' prefix to static library to avoid filename collision with 
 		set_target_properties(gtsam PROPERTIES
 			PREFIX ""
 			DEFINE_SYMBOL GTSAM_EXPORTS
-    RUNTIME_OUTPUT_DIRECTORY "${GTSAM_BINARY_DIR}/bin")
+            RUNTIME_OUTPUT_DIRECTORY "${GTSAM_BINARY_DIR}/bin")
 	endif()
 endif()
 

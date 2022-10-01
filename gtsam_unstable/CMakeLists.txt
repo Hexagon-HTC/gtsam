@@ -79,9 +79,6 @@ gtsam_apply_build_flags(gtsam_unstable)
 
 set_target_properties(gtsam_unstable PROPERTIES
   OUTPUT_NAME         gtsam_unstable
-  CLEAN_DIRECT_OUTPUT 1
-  VERSION             ${gtsam_unstable_version}
-  SOVERSION           ${gtsam_unstable_soversion}
   CLEAN_DIRECT_OUTPUT 1)
 target_link_libraries(gtsam_unstable PUBLIC gtsam)
 # No need to link against Boost here, it's inherited from gtsam PUBLIC interface
@@ -96,13 +93,9 @@ set_target_properties(gtsam_unstable PROPERTIES
 if(WIN32) # Add 'lib' prefix to static library to avoid filename collision with shared library
 	if (NOT BUILD_SHARED_LIBS)
 		set_target_properties(gtsam_unstable PROPERTIES
-			PREFIX "lib"
 			COMPILE_DEFINITIONS GTSAM_UNSTABLE_IMPORT_STATIC)
 	else()
 		set_target_properties(gtsam_unstable PROPERTIES
-			PREFIX ""
-			DEFINE_SYMBOL GTSAM_UNSTABLE_EXPORTS
-			RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
             DEFINE_SYMBOL GTSAM_UNSTABLE_EXPORTS)
 	endif()
 endif()
