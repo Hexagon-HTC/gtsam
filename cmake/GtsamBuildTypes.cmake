@@ -104,7 +104,7 @@ endif()
 
 # Enable C++11:
 if (NOT CMAKE_VERSION VERSION_LESS 3.8)
-    set(GTSAM_COMPILE_FEATURES_PUBLIC "cxx_std_11" CACHE STRING "CMake compile features property for all gtsam targets.")
+    set(GTSAM_COMPILE_FEATURES_PUBLIC "cxx_std_17" CACHE STRING "CMake compile features property for all gtsam targets.")
     # See: https://cmake.org/cmake/help/latest/prop_tgt/CXX_EXTENSIONS.html
     # This is to enable -std=c++11 instead of -std=g++11
     set(CMAKE_CXX_EXTENSIONS OFF)
