@@ -40,7 +40,7 @@ namespace gtsam {
     parentSum += clique->conditional()
                      ->R()
                      .diagonal()
-                     .unaryExpr(std::ptr_fun<double, double>(log))
+                     .unaryExpr([](double x) { return log(x); })
                      .sum();
     return 0;
   }
