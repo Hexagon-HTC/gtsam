@@ -26,6 +26,10 @@
 #include <boost/optional.hpp>
 #include <string>
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 namespace gtsam {
 
 /** The common parameters for Nonlinear optimizers.  Most optimizers
