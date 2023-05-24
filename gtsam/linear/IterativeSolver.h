@@ -29,6 +29,10 @@
 #include <string>
 #include <map>
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 namespace gtsam {
 
 // Forward declarations
